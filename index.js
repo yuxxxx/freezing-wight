@@ -44,17 +44,16 @@ var Circle = function(x, y, max, color) {
         return "x:" + this.x + " y:" + this.y + " r:" + this.r;
     };
     this.draw = function(ctx) {
-	var exStroke  = ctx.strokeStyle;
-	var exFill = ctx.fillStyle;
-       ctx.beginPath();
-       ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
-       ctx.closePath();
-       ctx.fillStyle = color;
-       ctx.stroke();
-       ctx.fill();
-	ctx.strokeStyle = exStroke;
-	ctx.fillStyle = exFill;
-	
+    var exStroke  = ctx.strokeStyle;
+    var exFill = ctx.fillStyle;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.stroke();
+        ctx.fill();
+        ctx.strokeStyle = exStroke;
+        ctx.fillStyle = exFill;
     };
 };
 //円を管理するクラス
@@ -131,9 +130,6 @@ var Square = function(x, y, width, dx, dy, color, item) {
         var margin = -20;
         return this.y > canvas.height - margin || this.x > canvas.width - margin || this.x < margin || this.y < margin
     };
-    this.bomb = function(player) {
-	
-    };
     this.toString = function() {
         return "x:" + this.x + " y:" + this.y;
     };
@@ -142,10 +138,24 @@ var Square = function(x, y, width, dx, dy, color, item) {
 var Squares = function() {
     this.prototype = new Collection();
     this.collection = [];
+    this.movingTables = [];
     //要素の追加
     this.add = function(x, y, w, dx, dy, c, i) {
         this.collection.unshift(new Square(x, y, w, dx, dy, c, i));
     };
+    //次に動く位置をあらかじめ計算する
+    this.addMovingTable = function(frames) {
+        var beats = frames.map(function(frame) {
+            return frame.beat * 64;
+        });
+        frames.map();
+        for (var beat in beats) {
+            var length = beats[(beat + 1) % beat.length] - beats[beat];
+            for (var i = 0; i < length; i++) {
+                beats[beats[beat] + i] = 
+            }
+        }
+    }
     
     //初期化
     this.init = function() {
@@ -181,7 +191,7 @@ var Item = function(x, y, radius, dx, dy, color, effect) {
 
     //アイテムに触る
     this.touch = function() {
-		this.effect();
+        this.effect();
     };
     //移動
     this.move = function() {
@@ -224,7 +234,7 @@ var PlayTimer = function(second) {
     //開始
     this.start = function() {
         if (this.timer) {
-         	clearInterval(this.timer);   
+             clearInterval(this.timer);   
         }
         var t = this;
         this.timer = setInterval(function() { t.countdown(); }, 1000);
@@ -261,7 +271,7 @@ var PlayTimer = function(second) {
     }
     this.toString = function() {
         var date = new Date(this.time * 1000);
-        return date.getMinutes() + ":" + date.getSeconds();
+        return date.getMinutes() + ":" + ("0" + date.getSeconds()).slice(-2);
     };
 };
 //プレイヤークラス。得点やゲーム進行の管理も兼ねる
@@ -283,8 +293,8 @@ var Player = function() {
         this.stock = 5;
         this.x = 200;
         this.y = 200;
-		this.isDead = false;
-		this.nextExtend = extend;
+        this.isDead = false;
+        this.nextExtend = extend;
     };
     //復帰する
     this.recover = function() {
@@ -299,7 +309,7 @@ var Player = function() {
     this.bomb = function() {
         if (!this.isDead) {
             this.startChain(this.x,this.y);
-        this.isDead = true;
+            this.isDead = true;
         }
     };
     //連鎖が終了した時のイベント
@@ -336,16 +346,16 @@ var Player = function() {
         if (this.dmax > 0) {
             this.score = this.score + 10;
             this.dmax = this.dmax - 10;
-	    this.nextExtend = this.nextExtend - 10;
-	    if (this.nextExtend == 0) {
-		this.stockExtend();
-	    }
+            this.nextExtend = this.nextExtend - 10;
+            if (this.nextExtend == 0) {
+                this.stockExtend();
+            }
         }
     };
     //残機増加
     this.stockExtend = function() {
         this.stock = this.stock + 1;
-	this.nextExtend = extend;
+        this.nextExtend = extend;
     };
     //描画
     this.draw = function(ctx) {
@@ -392,27 +402,30 @@ onload = function() {
     player.startChain = function(x, y) { circles.add(x, y); };
     //連鎖終了
     circles.endChain = function(chain) { player.endChain(chain); };
-    //ゲームオーバー
+    //残機がなくなることによるゲームオーバー
     player.gameOver = function() {
         stopTimer();
         playTimer.stop();
-		disablePause();
-		$('#result-chain').text("最大連鎖:" + $('#maxchain').attr('data-maxchain'));
-		$('#result-score').text("スコア:" + player.score);
+        disablePause();
+        $('#result-chain').text("最大連鎖:" + $('#maxchain').attr('data-maxchain'));
+        $('#result-score').text("スコア:" + player.score);
         $('#result').show();
     };
+    //時間切れによるゲームオーバー
     playTimer.timeup = player.gameOver;
     //■を打ち出す
     var enemy = function() {
+        //時間が増えるアイテムをドロップする敵
         squares.add(0, 130, 10, 1, 0, "#ff0000", 'time');
+        //得点が増えるアイテムをドロップする敵
         squares.add(130, 0, 10, 0, 1, "#00ff00", 'score');
-        squares.add(400, 270, 10, -1, 0, "#ff00ff", undefined);
-        //squares.add(270, 400, 10, 0, -1, "#0000ff");
+        //ただの敵
+        squares.add(400, 270, 10, -1, 0, "#0000ff", undefined);
     };
     //衝突判定はここに書く
     var collisionDetect = function() {
         //■と円
-        //↑見た目はそうなんだけど実は■の外接円にかなり精度の悪い近似したものと判定をさせている
+        //↑見た目はそうなんだけど実は■の外接円に近似したものと判定をさせている
         for (var i in circles.collection) {
             var c = circles.collection[i];
             for (var j in squares.collection) {
@@ -422,7 +435,7 @@ onload = function() {
                     squares.remove(j);
                     circles.add(s.x, s.y);
                     if (s.itemType) {
-                    	items.add(s.x, s.y, 10, s.dx * 0.1, s.dy * 0.1, s.color, s.itemType);
+                        items.add(s.x, s.y, 10, s.dx * 0.1, s.dy * 0.1, s.color, s.itemType);
                     }
                     player.addScore(false, circles.chain); //得点
                 }
@@ -439,7 +452,7 @@ onload = function() {
                 break;
             }
         }
-	    //プレイヤーとアイテム
+        //プレイヤーとアイテム
         for (var i in items.collection) {
             var s = items.collection[i];
             var x = player.x - s.x;
@@ -458,15 +471,15 @@ onload = function() {
         //描画
         circles.draw(ctx);
         squares.draw(ctx);
-		items.draw(ctx);
+        items.draw(ctx);
         player.draw(ctx);
-		//衝突判定
-		collisionDetect();
+        //衝突判定
+        collisionDetect();
         //次フレームの計算
         circles.nextFrame();
         squares.nextFrame(canvas);
-		items.nextFrame(canvas);
-		//チェーンの計算
+        items.nextFrame(canvas);
+        //チェーンの計算
         circles.chainCalc();
         //デバッグ用表示
         $('#squares').text("squares:" + squares);
@@ -476,11 +489,11 @@ onload = function() {
     };
     //タイマーの設定はここ
     function startTimer(){
-		var functions = [
+        var functions = [
             main,
-			enemy,
-			function(){ player.countupScore(); }
-		]; //呼び出す関数
+            enemy,
+            function(){ player.countupScore(); }
+        ]; //呼び出す関数
         var intervals = [1000 / 60, 1500, 5]; //呼び出し間隔
         for (i = 0; i < 3; i++) {
             if (!timers[i]) {
@@ -530,38 +543,39 @@ onload = function() {
         init();
         startTimer();
         playTimer.start();
-		enablePause();
+        enablePause();
     });
     //結果画面をクリック
     $('#result').mousedown(function() {
-		$(this).hide();
-		$('#start').show();
+        $(this).hide();
+        $('#start').show();
     });
     //キーボード関連の処理
     $(window).keydown(function(e) {
         var dmove = 1; //移動量
+        var playerLimit = 25; //プレイヤーがこれ以上画面端ににいけないドット数
         switch (e.keyCode){
         case 37:
         case 100:
-            if (player.x > 25) {
+            if (player.x > playerLimit) {
                 player.x = player.x - dmove;
             }
             break;
         case 38:
         case 104:
-            if (player.y > 25) {
+            if (player.y > playerLimit) {
                 player.y = player.y - dmove;
             }
             break;
         case 39:
         case 102:
-            if (player.x < canvas.width - 25) {
+            if (player.x < canvas.width - playerLimit) {
                 player.x = player.x + dmove;
             }
             break;
         case 40:
         case 98:
-            if (player.y < canvas.height - 25) {
+            if (player.y < canvas.height - playerLimit) {
                 player.y = player.y + dmove;
             }    
             break;
