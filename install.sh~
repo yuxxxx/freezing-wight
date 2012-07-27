@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo ブラウザは何を使っていますか？
+read browser
+sed s/{{browser}}/$browser/ 

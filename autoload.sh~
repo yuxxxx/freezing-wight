@@ -1,0 +1,19 @@
+#!/bin/sh
+
+/usr/bin/inotifywait -e delete,modify -mq ~/atcoder/$1 | \
+while read line
+do
+    modified_file=${line#/* * }
+    retry_task=${modified_file%.$2}
+    echo $modified_file が変更された気がします。
+    echo $retry_task を再実行します。
+    ./test.sh $1 $retry_task
+    while :
+    do
+        read line
+        echo $line | grep -q DELETE
+        if [ $? = 0 ]; then
+            break
+        fi
+    done
+done

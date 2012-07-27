@@ -1,0 +1,34 @@
+#!/bin/bash
+#test.sh コンテスト 問題 [入出力例 ...]
+#問題の答え合わせをします
+
+#答え合わせ1回分
+single_test()
+{
+    echo "問題:${1}"
+    echo "入力例:${2}"
+    echo '入力'
+    cat ${2}/example.txt
+    echo '正解'
+    echo -e "\e[1;34m"`cat ${2}/answer.txt`"\e[m"
+    echo '解答'
+    #ベンチマーク
+    ruby benchmark.rb ${1}.rb ${2}/example.txt
+}
+
+fp=~/atcoder/${1}/${2}
+if [ $# -ge 3 ] ; then
+    #引数を3つ以上指定すると入出力例を指定して答え合わせする
+    while [ $# -ge 3 ] 
+    do
+        single_test ${fp} ${fp}/'test'${3}
+        shift
+    done
+else
+    #引数を2つ指定するとすべての入出力例で答え合わせする
+    files=${fp}/*
+    for filepath in ${files}
+    do
+        single_test ${fp} $filepath
+    done
+fi
