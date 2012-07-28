@@ -144,18 +144,29 @@ var Squares = function() {
         this.collection.unshift(new Square(x, y, w, dx, dy, c, i));
     };
     //次に動く位置をあらかじめ計算する
-    this.addMovingTable = function(frames) {
-        var beats = frames.map(function(frame) {
-            return frame.beat * 64;
+    this.addMovingTable = function(points) {
+        var beats = points.map(function(point) {
+            return point.beat * 64;
         });
-        frames.map();
+        var ret = [];
         for (var beat in beats) {
-            var length = beats[(beat + 1) % beat.length] - beats[beat];
+            var interval = beats[(beat + 1) % beat.length] - beats[beat];
+            var moves = {
+                x: frames[beat + 1].x - frames[beat].x,
+                y: frames[beat + 1].y - frames[beat].y
+            };
+            var ddeg = Math.PI / interval;
             for (var i = 0; i < length; i++) {
-                beats[beats[beat] + i] = 
+                ret[beats[beat] + i] = {
+                    frame: beats[beat] + i,
+                    x: points[beat / 64].x - moves.x * (Math.sin(ddeg * i) + 1) / 2,
+                    y: points[beat / 64].y - moves.y * (Math.sin(ddeg * i) + 1) / 2
+                };
+                    
+                }
             }
         }
-    }
+    };
     
     //初期化
     this.init = function() {
@@ -377,7 +388,7 @@ var Player = function() {
         ctx.stroke();
     };
     this.toString = function() {
-        return "stock:" + this.stock + "score:" + this.score;
+        return "stock:" + this.stock + "score:" + this.score + "next-extend:" +  this.nextExtend;
     };
 };
 //描画とか判定とか
@@ -425,13 +436,12 @@ onload = function() {
     //衝突判定はここに書く
     var collisionDetect = function() {
         //■と円
-        //↑見た目はそうなんだけど実は■の外接円に近似したものと判定をさせている
         for (var i in circles.collection) {
             var c = circles.collection[i];
             for (var j in squares.collection) {
                 var s = squares.collection[j];
                 if (((c.x - s.x) * (c.x - s.x) + (c.y - s.y) * (c.y - s.y)) <= (c.r + s.r) * (c.r + s.r)) {
-                    var dropItem = s.bomb(player);
+                   // var dropItem = s.bomb(player);
                     squares.remove(j);
                     circles.add(s.x, s.y);
                     if (s.itemType) {
