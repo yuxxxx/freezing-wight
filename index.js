@@ -210,26 +210,31 @@ onload = function() {
         case 74:
         case 32:
         case 96:
+            //自爆
             player.bomb();
             break;
         case 87:
         case 37:
         case 100:
+            //左方向
             player.changeDirection(1<<0, false);
             break;
         case 68:
         case 38:
         case 104:
+            //上方向
             player.changeDirection(1<<1, false);
             break;
         case 65:
         case 39:
         case 102:
+            //右方向
             player.changeDirection(1<<2, false);
             break;
         case 83:
         case 40:
         case 98:
+            //下方向
             player.changeDirection(1<<3, false);
             break;
         default:

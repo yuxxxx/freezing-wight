@@ -102,6 +102,7 @@ var Player = function() {
         ctx.stroke();
     };
     var p = this;
+    // 移動する方向
     this.moving = {
         1 : function(canvas) {
             if (p.x > p.itemRadius) {
@@ -134,7 +135,8 @@ var Player = function() {
     };
     // 移動方向を変える
     this.changeDirection = function(direction, isMove) {
-        this.direction = isMove ? (this.direction | direction) : (this.direction ^ direction);
+        this.direction = isMove ? (this.direction | direction)
+                                : (this.direction ^ direction);
         console.log(this.direction + ":" + direction + "(" + isMove);
     };
     // 移動方向をリセットする
