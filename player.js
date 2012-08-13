@@ -3,6 +3,7 @@ var Player = function() {
     var extend = 10000;
     this.score;
     this.dmax;
+    this.dmove = 1;
     this.nextExtend;
     this.stock;
     this.x;
@@ -99,6 +100,46 @@ var Player = function() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.itemRadius, 0, 2 * Math.PI, true);
         ctx.stroke();
+    };
+    var p = this;
+    this.moving = {
+        1 : function(canvas) {
+            if (p.x > p.itemRadius) {
+                p.x = p.x - p.dmove;
+            }
+        },
+        2 : function(canvas) {
+            if (p.y > p.itemRadius) {
+                p.y = p.y - p.dmove;
+            }
+        },
+        4 : function(canvas) {
+            if (p.x < canvas.width - p.itemRadius) {
+                p.x = p.x + p.dmove;
+            }
+        },
+        8 : function(canvas) {
+            if (p.y < canvas.height - p.itemRadius) {
+                p.y = p.y + p.dmove;
+            }
+        }
+    };
+    // 移動する
+    this.nextFrame = function(canvas) {
+        for (var i = 0; i < 4; i++) {
+            if ((this.direction & 1 << i) != 0) {
+                this.moving[(1 << i).toString()](canvas);
+            }
+        }
+    };
+    // 移動方向を変える
+    this.changeDirection = function(direction, isMove) {
+        this.direction = isMove ? (this.direction | direction) : (this.direction ^ direction);
+        console.log(this.direction + ":" + direction + "(" + isMove);
+    };
+    // 移動方向をリセットする
+    this.resetDirection = function() {
+        this.direction = 0
     };
     this.toString = function() {
         return "stock:" + this.stock + "score:" + this.score + "next-extend:" +  this.nextExtend;

@@ -76,7 +76,7 @@ var Squares = function() {
     this.add = function(x, y, w, dx, dy, c, i) {
         this.collection.unshift(new Square(x, y, w, dx, dy, c, i));
     };
-    //次に動く位置をあらかじめ計算する
+ //次に動く位置をあらかじめ計算する
     this.addMovingTable = function(points) {
         var beats = points.map(function(point) {
             return point.beat * 64;
@@ -95,12 +95,10 @@ var Squares = function() {
                     x: points[beat / 64].x - moves.x * (Math.sin(ddeg * i) + 1) / 2,
                     y: points[beat / 64].y - moves.y * (Math.sin(ddeg * i) + 1) / 2
                 };
-                    
-                }
+                
             }
         }
     };
-    
     //初期化
     this.init = function() {
         this.collection = [];
@@ -112,7 +110,6 @@ var Squares = function() {
     this.remove = function(i) {
         delete this.collection[i];
     };
-    
     this.toString = function() {
         var str = this.collection.length.toString();
         for (var i in this.collection) {

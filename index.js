@@ -9,7 +9,7 @@ onload = function() {
     var circles = new Circles();
     var squares = new Squares();
     var player = new Player();
-    var playTimer = new PlayTimer(0);
+    var playTimer = new Timer(0);
     var items = new Items(player, playTimer);
     var timers = [undefined, undefined, undefined]; //タイマー
     //連鎖表示の更新
@@ -100,6 +100,7 @@ onload = function() {
         circles.nextFrame();
         squares.nextFrame(canvas);
         items.nextFrame(canvas);
+        player.nextFrame(canvas)
         //チェーンの計算
         circles.chainCalc();
         //デバッグ用表示
@@ -142,11 +143,12 @@ onload = function() {
     //ポーズを有効にする
     function enablePause() {
         //画面からフォーカスが外れた時。
-        //タイマーを解除しポーズ画面を表示
+        //タイマーを解除しポーズ画面を表示。移動方向もリセット
         $(window).blur(function() {
             stopTimer();
             playTimer.stop();
             $('#pause').show();
+            player.resetDirection();
         });
         //画面にフォーカスたあたった時。
         $(window).focus(function() {
@@ -173,41 +175,62 @@ onload = function() {
     });
     //キーボード関連の処理
     $(window).keydown(function(e) {
-        var dmove = 1; //移動量
-        var playerLimit = 25; //プレイヤーがこれ以上画面端ににいけないドット数
+        console.log("keydown: " + e.keyCode);
         switch (e.keyCode){
+        case 87:
         case 37:
         case 100:
-            if (player.x > playerLimit) {
-                player.x = player.x - dmove;
-            }
+            //左方向
+            player.changeDirection(1<<0, true);
             break;
+        case 68:
         case 38:
         case 104:
-            if (player.y > playerLimit) {
-                player.y = player.y - dmove;
-            }
+            //上方向
+            player.changeDirection(1<<1, true);
             break;
+        case 65:
         case 39:
         case 102:
-            if (player.x < canvas.width - playerLimit) {
-                player.x = player.x + dmove;
-            }
+            //右方向
+            player.changeDirection(1<<2, true);
             break;
+        case 83:
         case 40:
         case 98:
-            if (player.y < canvas.height - playerLimit) {
-                player.y = player.y + dmove;
-            }    
+            //下方向
+            player.changeDirection(1<<3, true);
             break;
         default:
             break;
         }
     }).keyup(function(e) {
+        console.log("keyup: " + e.keyCode);
         switch(e.keyCode) {
+        case 74:
         case 32:
         case 96:
             player.bomb();
+            break;
+        case 87:
+        case 37:
+        case 100:
+            player.changeDirection(1<<0, false);
+            break;
+        case 68:
+        case 38:
+        case 104:
+            player.changeDirection(1<<1, false);
+            break;
+        case 65:
+        case 39:
+        case 102:
+            player.changeDirection(1<<2, false);
+            break;
+        case 83:
+        case 40:
+        case 98:
+            player.changeDirection(1<<3, false);
             break;
         default:
             break;

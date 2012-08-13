@@ -2,7 +2,7 @@
 var Timer = function(time, interval) {
     var defaultTime = time;
     this.time = time;
-    this.interval = interval ? interval, 1000;
+    this.interval = interval ? interval : 1000;
     this.timer = undefined;
     //開始
     this.start = function() {
@@ -18,7 +18,6 @@ var Timer = function(time, interval) {
     };
     //カウントダウンする
     this.countdown = function() {
-        console.log(this);
         if (this.time == 0) {
             this.timeup();
         } else {
