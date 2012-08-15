@@ -3,7 +3,7 @@
 
 
 //描画とか判定とか
-onload = function() {
+$(document).ready(function() {
     var canvas = document.getElementById('world');
     var ctx = canvas.getContext('2d');
     var circles = new Circles();
@@ -243,4 +243,4 @@ onload = function() {
     });
     $(".page").hide();
     $('#start').show();
-};
+});

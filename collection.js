@@ -66,6 +66,40 @@ var Circles = function() {
         return str;
     };
 };
+//四角を管理するクラス
+var Squares = function() {
+    this.prototype = new Collection();
+    this.collection = [];
+    this.movingTables = [];
+    //要素の追加
+    this.add = function(x, y, w, dx, dy, c, i) {
+        this.collection.unshift(new Square(x, y, w, dx, dy, c, i));
+    };
+    //次に動く位置をあらかじめ計算する
+    function OnMoveComplete(id, index) {
+        return this.MovingTables[id][index];
+    }
+    //初期化
+    this.init = function() {
+        this.collection = [];
+        
+    };
+    this.draw = this.prototype.draw;
+    this.nextFrame = this.prototype.nextFrame;
+
+    //コレクションからメンバーを削除
+    this.remove = function(i) {
+        delete this.collection[i];
+    };
+    this.toString = function() {
+        var str = this.collection.length.toString();
+        for (var i in this.collection) {
+            var s = this.collection[i];
+            str = str + " / " + s.toString();
+        }
+        return str;
+    };
+};
 //アイテムを管理するクラス。効果を追加するときはここのeffectsプロパティにハッシュを増やす
 var Items = function(player, timer) {
     this.prototype = new Squares();
